@@ -5,7 +5,7 @@ from opentrons import protocol_api
 metadata = {
     "protocolName": "Test Positioning",
     "author": "Evan Hutchinson <ehutch03@mit.edu>",
-    "description": "test OT2's ability to move the pipette to three desired positions (without a tip). No liquid yet",
+    "description": "test OT2's ability to move the pipette around with and without a tip. No liquid yet",
 }
 
 requirements = {"robotType": "OT-2", "apiLevel": "2.16"} 
