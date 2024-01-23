@@ -19,28 +19,42 @@ def run(protocol: protocol_api.ProtocolContext):
     # position of the water source in mm (x,y,z)
     # TODO find position of the water tube and put it here
     
-    water_location = types.Location(types.Point(x=0,y=0,z=0),None) # NOTE the Z offset is CRITICAL so you don't have a collision. FIX WHERE THESE LOCATIONS ACTUALLY ARE
+    water_location = types.Location(types.Point(x=16,y=68,z=40),None) # NOTE the Z offset is CRITICAL so you don't have a collision. FIX WHERE THESE LOCATIONS ACTUALLY ARE
 
-
-    #pipette
+    #---pipette dry and wet runs below. comment out move to lines & switch them with aspirate/dispense for toggling between wet and dry modes---#
     right_pipette = protocol.load_instrument("p1000_single_gen2",mount="right",tip_racks=[tiprack])
-    #right_pipette.pick_up_tip(tiprack["G11"])
-    right_pipette.move_to(water_location)
-    # right_pipette.drop_tip(location=tiprack["G11"])
-    # NOTE TEST THE ABOVE BEFORE YOU UNCOMMENT THE BELOW WHERE YOU PICK UP THE WATER. DIAL IN X, Y, AND Z
+    
+    right_pipette.pick_up_tip(tiprack["E11"])
+    
+    #----aspirate 50ul into A1 and B1-B10, then 100ul into B11----#
+    # right_pipette.move_to(water_location)
+    # right_pipette.aspirate(50, water_location)
+    # # protocol.pause("check tip location")
 
-    # #---test picking up and dispensing water once---#  NOTE you need to decide what to do with the wet tips. Thinking you reuse them once per day.
-    # right_pipette.pick_up_tip(tiprack["G11"]) # inside of pick_up_tip can specify tip A1 by saying pick_up_tip(tiprack.wells()[0]) 
-    # right_pipette.aspirate(100, water_location) 
-    # right_pipette.dispense(100, plate["A1"])
+    # # right_pipette.move_to(plate["A1"].top())
+    # right_pipette.dispense(50, plate["A1"])
+    # # protocol.pause("did you make it to a1?")
 
-    # #---test picking up and dispensing water 10 times---# 
     # right_pipette.aspirate(600, water_location)
-    # for num in range(1,11):
-    #     right_pipette.dispense(50, plate[f"B{num}"]) #dispense 50ul into 10 plates in row B
-    # right_pipette.dispense(100, plate["B11"]) # empty pipette by dispensing 100ul into cell B11
+    # for num in range(1,11): 
+    #     # right_pipette.move_to(plate[f"B{num}"].top())
+    #     right_pipette.dispense(50, plate[f"B{num}"])
+    # # protocol.pause("did you make it to each of the first 10 cells in B?")
+    # right_pipette.dispense(100, plate["B11"])
+    #----aspirate 50ul into A1 and B1-B10, then 100ul into B11----#
 
-    # right_pipette.drop_tip() # drop the tip into the trash chute once done. NOTE remember to empty this out when you're finished with it
+
+    #-----test if the volumes aspirated/dispensed are accurate----#
+    for num in range(1,11):
+        right_pipette.aspirate(100, water_location)
+        right_pipette.dispense(100, plate[f"C{num}"])
+    #-----test if the volumes aspirated/dispensed are accurate----#
+        
+
+    right_pipette.drop_tip(location=tiprack["E11"])
+    # NOTE  change from the tiprack to the trash chute once you start using things besides pure water
+
+    
 
     
     
