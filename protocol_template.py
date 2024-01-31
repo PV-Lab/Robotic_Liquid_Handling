@@ -14,5 +14,9 @@ def run(protocol: protocol_api.ProtocolContext):
 
 
     #----load in pipette(s) here----#
+    
+    
+    #----load in liquids or other locations here----#
+
 
     #----instructions for OT-2 here----#
