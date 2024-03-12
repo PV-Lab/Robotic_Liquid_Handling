@@ -41,17 +41,14 @@ molarity_grad = [1, 0.8, 0.5, 0.3]
 
 
 
-def main():
+def main(cur_dir, input_dir, output_dir):
     # read input file
-    cur_dir = Path(os. getcwd())
-    input_dir = 'inputs/input.csv'
-    output_dir = 'output/output.csv'
     inputfile = Path(cur_dir/input_dir)
     outputfile = Path(cur_dir/output_dir)
-    print(inputfile)
-    input_data = utils.utils().read_input(inputfile)
-    output_data = utils.utils().create_output(input_data)
-    utils.utils().save_output(output_data, outputfile)
+   
+    input_data = utils.read_input(inputfile)
+    output_data = utils.create_output(input_data)
+    utils.save_output(output_data, outputfile)
     
 if __name__ == '__main__':
     main()
