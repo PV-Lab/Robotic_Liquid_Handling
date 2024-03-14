@@ -1,6 +1,10 @@
-ABC1 
+import utils
+import os
+from pathlib import Path
 
-ABC2
+#ABC1 
+
+#ABC2
 
 molarity_grad = [1, 0.8, 0.5, 0.3]
 
@@ -31,7 +35,21 @@ molarity_grad = [1, 0.8, 0.5, 0.3]
 # fix locations of acids & salts. add protocolPause that flashes on screen to say "are you sure your acids are here, salts here?"
 
 
-class Solubility_testing:
-    def __init__(self) -> None:
-        
+#class Solubility_testing:
+#    def __init__(self) -> None:
+
+
+
+
+def main(cur_dir, input_dir, output_dir):
+    # read input file
+    inputfile = Path(cur_dir/input_dir)
+    outputfile = Path(cur_dir/output_dir)
+   
+    input_data = utils.read_input(inputfile)
+    output_data = utils.create_output(input_data)
+    utils.save_output(output_data, outputfile)
+    
+if __name__ == '__main__':
+    main()
 
