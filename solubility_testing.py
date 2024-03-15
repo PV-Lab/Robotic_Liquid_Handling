@@ -45,13 +45,39 @@ def main(cur_dir, input_dir, output_dir):
     #--------------------------------------------#
 
     #---test adding acid into the salt vials---#
-    add_acid(dataframe_dict)
+    # add_acid(dataframe_dict,protocol)   # NOTE add relevant arguments to fix bugs
     #--------------------------------------------#
 
-    utils.save_output(output_data, outputfile)
+    #---test calculating acid volume calculation---#
+    get_acid_volumes(dataframe_dict)
+
+    #---test ability to get remarks from user after protocol ends---#
+    enter_remarks(output_data)
+    #---test overall run function---#
+    #run(dataframe_dict)
+    # NOTE uncomment this when ready to run file NOTE utils.save_output(output_data, outputfile)
 
 
 #---helper functions (will be moved into utils once their function is solidified, then into a class for this test in general)---#
+
+
+def get_acid_volumes(data) -> list:
+    '''
+    given a csv containing the input data for a solubility test,
+    calculates the volumes of acid (in mL) necessary to create a
+    given molarity solution.
+    '''
+    salt_molar_mass = data['molar mass (mg)'][0]
+    salt_mass_in_vial = data['mass in vial'][0]
+
+    moles_salt = float(salt_mass_in_vial) / float(salt_molar_mass)
+
+    molarity_grad = [1, 0.8, 0.5, 0.3]
+    acid_volumes = [moles_salt / molarity for molarity in molarity_grad]
+    
+
+    print(f'{acid_volumes=}')
+    return acid_volumes
 
 def assign_spots(data,ingredient) -> dict:
     ''' 
@@ -87,7 +113,7 @@ def assign_spots(data,ingredient) -> dict:
     print('Dictionary of positions: ', shaker_positions)
     return shaker_positions
 
-def add_acid(data, protocol:protocol_api.ProtocolContext) -> None: # NOTE can either add protocol:protocol_api... here or put all of these functions in a huge run function
+def add_acid(data, protocol, pipette, heater_shaker) -> None: # NOTE can either add protocol:protocol_api... here or put all of these functions in a huge run function
     '''
     given a dictionary containing CSV information, pulls out the volume of acid to be placed
     in each vial, as well as the locations of the acids and salts. to be visited
@@ -95,23 +121,61 @@ def add_acid(data, protocol:protocol_api.ProtocolContext) -> None: # NOTE can ei
     acid_locations = assign_spots(data,'acid')
     salt_locations = assign_spots(data, 'salt')
 
-    acid_vol = data['volume (ml)'][0] * 1000 # converts acid vol to uL NOTE what to do if >1000uL requested?
-    if acid_vol > 1000: #NOTE this might not be necessary
+    acid_volumes = get_acid_volumes(data)
+    if max(acid_volumes) > 1000: #NOTE this might not be necessary
         raise AssertionError('pipette tips can only hold maximum of 1000uL')
-    print('acid vol in uL: ',acid_vol)
-
     
+
+    # NOTE the order of acid volumes corresponds to the molarities in decreasing orders
     for location in list(acid_locations.values()):
         print('acid location(s): ', location)
-        protocol.pause(f'is there an acid located at {location}?')
+        protocol.pause(f'is there an acid located at {location}?') #NOTE uncomment this when time to run code
 
     protocol.pause('are you ready to begin dispensing acids?')
-    for location in list(salt_locations.values()):
-        pipette.aspirate(acid_vol,list(acid_locations.values())[0])
-        pipette.dispense(acid_vol, heater_shaker[location])
 
-def heat_and_shake():
-    pass
+    pipette.pick_up_tip()
+    for idx, vial in enumerate(salt_locations.values()):
+        acid_vol = acid_volumes[idx]
+        pipette.aspirate(acid_vol,list(acid_locations.values())[0])
+        pipette.dispense(acid_vol, heater_shaker[vial])
+    pipette.drop_tip() # NOTE need to pick up and drop the tips as necessary
+
+def heat_and_shake(heater_shaker,protocol) -> None:
+    heater_shaker.set_and_wait_for_temperature(100)
+    protocol.delay(minutes=15)
+    heater_shaker.deactivate_heater()
+
+    heater_shaker.set_and_wait_for_shake_speed(500)
+    protocol.delay(minutes=3)
+    heater_shaker.deactivate_shaker()
+
+def enter_remarks(dataframe) -> None:
+    remarks = [0 * len(dataframe)]
+
+    for row in range(len(dataframe)):
+        remarks[row] = input('Was this mixture soluble? ')
+
+    dataframe['remarks'] = remarks
+    print(dataframe) # you'd then save the file to the directory
+
+def run(data, protocol: protocol_api.ProtocolContext) -> None:
+    plate = protocol.load_labware("<INSERT PLATE NAME HERE>",location="INSERT LOCATION ON DECK HERE")
+    heater_shaker = protocol.load_module('heaterShakerModuleV1', location=4)
+
+    tiprack = protocol.load_labware("opentrons_96_tiprack_1000ul",location="8")
+    
+    pipette = protocol.load_instrument("p1000_single_gen2",mount="right",tip_racks=[tiprack])
+
+    
+    add_acid(data, protocol, pipette, heater_shaker)
+    heat_and_shake(heater_shaker,protocol)
+    enter_remarks(Pandas.DataFrame.from_dict(data))
+    protocol.pause('Enter remarks on laptop')
+    #NOTE NOTE NOTE should I heat the heater-shaker at the start of the protocol or after the acids have been added?
+
+
+    
+
 
 if __name__ == '__main__':
     cur_dir = Path(os.getcwd())

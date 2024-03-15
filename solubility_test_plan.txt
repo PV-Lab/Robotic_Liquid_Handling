@@ -28,3 +28,6 @@
 # NOTE: the reading of the csv into a pandas dataframe is already occurring. is it necessary to then do a secondary conversion from pandas dataframe into
 # a globally visual dictionary of spreadsheet info, or is it fine to just call it on the fly for now? As CSVs get larger it will for sure be necessary to do this
 # process as few times as possible, but we can get away with it for now
+
+
+# CHANGE --> set amount of salt, change vol of acid 
