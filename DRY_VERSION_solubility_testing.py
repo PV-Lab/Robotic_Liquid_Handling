@@ -182,11 +182,11 @@ def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
 
     def heat_and_shake() -> None:
         heater_shaker.set_and_wait_for_temperature(50) # what should the temperature be given heater-shaker operates from 37-95C
-        protocol.delay(minutes=1)
+        protocol.delay(minutes=0.5)
         heater_shaker.deactivate_heater()
 
         heater_shaker.set_and_wait_for_shake_speed(500)
-        protocol.delay(minutes=1)
+        protocol.delay(minutes=0.5)
         heater_shaker.deactivate_shaker()
     
     add_acid()
