@@ -10,9 +10,9 @@ from opentrons import types
 
 
 metadata = {
-    "protocolName":"Solubility Testing",
+    "protocolName":"DRY RUN - Solubility Testing",
     "author":"Evan Hutchinson",
-    "description":"Evaluate the solubility of different mixtures by making a molarity gradient & seeing what dissolves",
+    "description":"Do a dry version of the solubility test to evaluate function of heater-shaker and make sure all locations are valid",
     "apiLevel": "2.16",
 }
 
@@ -24,7 +24,7 @@ molarity_grad = [1, 0.8, 0.5, 0.3] # NOTE for now these will be manually measure
 #class Solubility_testing:
 #    def __init__(self) -> None:
 DATA = {'date': {0: 3122024}, 'owner': {0: 'basitadas'}, 'salt': {0: 'Lead iodide'}, 'formula': {0: 'PbI2'}, 'barcode': {0: 203409}, 
-        'purity': {0: 99.9999}, 'molar mass (mg)': {0: 'molar mass'}, 'mass in vial': {0: 361.01}, 'acid': {0: 'Hydrogen bromide'}, 
+        'purity': {0: 99.9999}, 'molar mass (mg)': {0: 461.01 * 1000}, 'mass in vial': {0: 361.01}, 'acid': {0: 'Hydrogen bromide'}, 
         'formula.1': {0: 'HBr2'}, 'barcode.1': {0: 504309}, 'concentration': {0: '47%'}, 'volume (ml)': {0: 1}, 'remarks': {0: None}} # NOTE none is 'nan' in actual CSV
 
 def main(cur_dir, input_dir, output_dir):
@@ -73,10 +73,10 @@ def get_acid_volumes(data) -> dict:
     salt_mass_in_vial = data['mass in vial'][0]
 
     # moles_salt = float(salt_mass_in_vial) / float(salt_molar_mass) 
-    moles_salt = float(salt_mass_in_vial) / 2000 # NOTE it's an arbitrary number in the denominator here so there are no errors with reading from csv for now 
+    moles_salt = float(salt_mass_in_vial) / salt_molar_mass # NOTE it's an arbitrary number in the denominator here so there are no errors with reading from csv for now 
 
     molarity_grad = [1, 0.8, 0.5, 0.3]
-    acid_volumes = [(moles_salt / molarity) * 1000 for molarity in molarity_grad]
+    acid_volumes = [((moles_salt / molarity) * 1000) * 1000 for molarity in molarity_grad] # units in uL
     
     output_vols = {idx + 1:volume for idx, volume in enumerate(acid_volumes)}
     #print(f'{output_vols=}')
@@ -94,7 +94,7 @@ def assign_spots(data,ingredient) -> dict:
     '''
     if ingredient.lower() == 'salt':
         # num_ingredient = len(data['salt'][0]) # NOTE one ingredient for now, this is also still bugged
-        num_ingredient = 4
+        num_ingredient = 4 # number of salts * 4 = number of vial spots to assign
         #print('assigning salt spots...')
         #print('ingredient: ', DATA['salt'][0]) # NOTE if multiple salts convert to list instead
         
@@ -136,21 +136,42 @@ def enter_remarks(dataframe) -> None:
     #print(dataframe) # you'd then save the file to the directory
 
 def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
-    tube_rack = protocol.load_labware('opentrons_6_tuberack_falcon_50ml_conical',location='9') # NOTE this is the location of the rack with acid in it, far back so less splash hazard
+    tube_rack = protocol.load_labware('opentrons_10_tuberack_falcon_4x50ml_6x15ml_conical',location='6') # NOTE this is the location of the rack with acid in it, far back so less splash hazard
     
-    heater_shaker = protocol.load_module('heaterShakerModuleV1', location='7') # NOTE placed in spot 9 so less splash hazard
-    
+    heater_shaker = protocol.load_module('heaterShakerModuleV1', location='4') # NOTE placed in spot 9 so less splash hazard
+    temp_mod = protocol.load_module(module_name="temperature module gen2", location="10")
+
     heater_shaker.open_labware_latch()
-    heater_shaker_adapter = heater_shaker.load_adapter('opentrons_96_flat_bottom_adapter') # NOTE this may not be necessary
+    protocol.pause('attach labware')
+    heater_shaker_adapter = heater_shaker.load_adapter('opentrons_aluminum_flat_bottom_plate') # NOTE this may not be necessary
     heater_shaker_plate = heater_shaker_adapter.load_labware('nest_96_wellplate_200ul_flat')
     heater_shaker.close_labware_latch()
     
-    tiprack = protocol.load_labware('opentrons_96_tiprack_1000ul',location='6')
+    heater_shaker.set_target_temperature(90)
+
+    tiprack = protocol.load_labware('opentrons_96_tiprack_1000ul',location='9')
     
     pipette = protocol.load_instrument('p1000_single_gen2',mount="right",tip_racks=[tiprack])
 
     
-    
+    def dispense_vol(volume, source, destination) -> None:
+        '''
+        takes in a single volume in uL and aspirates/dispenses it as necessary. if volume is
+        greater than pipette capacity, then aspirate/dispense multiple times until done.
+        '''
+        
+        # for volume in volumes:
+        if volume >= 1000:
+            num_trips = int(volume // 1000)
+            rem = volume - num_trips * 1000
+            pipette.move_to(source)
+            pipette.move_to(destination)
+            for _ in range(num_trips):
+                pipette.move_to(source)
+                pipette.move_to(destination)
+        else:
+            pipette.move_to(source)
+            pipette.move_to(destination)
 
     def add_acid() -> None: # NOTE as of now these are all inside of a huge run function, but can pull them out of it later on in development.
         # right now just annoying to keep track of every single labware definition to pass in 
@@ -162,9 +183,7 @@ def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
         salt_locations = assign_spots(DATA, 'salt')
 
         acid_volumes = get_acid_volumes(DATA)
-        if max(acid_volumes) > 1000: #NOTE this might not be necessary
-            raise AssertionError('pipette tips can only hold maximum of 1000uL')
-        
+       
 
         # NOTE the order of acid volumes corresponds to the molarities in decreasing orders
         for acid, location in acid_locations.items():
@@ -173,12 +192,12 @@ def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
 
         protocol.pause('are you ready to begin dispensing acids?')
 
-        pipette.pick_up_tip()
+        pipette.pick_up_tip(tiprack['A1'])
         for idx, vial in salt_locations.items():
             acid_vol = acid_volumes[idx]
-            pipette.move_to(tube_rack[acid_locations[1]].top())
-            pipette.move_to(heater_shaker_plate[vial].center()) # TODO do a dry run of every location so you know there aren't collisions
-        pipette.drop_tip() # NOTE need to pick up and drop the tips as necessary
+            dispense_vol(acid_vol, tube_rack[acid_locations[1]].center(), heater_shaker_plate[vial].center())
+
+        pipette.drop_tip(tiprack['A1']) # NOTE need to pick up and drop the tips as necessary
 
     def heat_and_shake() -> None:
         heater_shaker.set_and_wait_for_temperature(50) # what should the temperature be given heater-shaker operates from 37-95C
@@ -190,7 +209,13 @@ def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
         heater_shaker.deactivate_shaker()
     
     add_acid()
-    heat_and_shake()
+    # heat_and_shake()
+    
+    heater_shaker.set_and_wait_for_shake_speed(500)
+    protocol.delay(minutes=1)
+    heater_shaker.deactivate_shaker()
+    heater_shaker.deactivate_heater()
+
     enter_remarks(Pandas.DataFrame.from_dict(data))
     protocol.pause('Enter remarks on laptop')
     #NOTE NOTE NOTE should I heat the heater-shaker at the start of the protocol or after the acids have been added?
