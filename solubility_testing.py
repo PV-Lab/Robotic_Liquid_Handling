@@ -24,7 +24,7 @@ molarity_grad = [1, 0.8, 0.5, 0.3] # NOTE for now these will be manually measure
 #class Solubility_testing:
 #    def __init__(self) -> None:
 DATA = {'date': {0: 3122024}, 'owner': {0: 'basitadas'}, 'salt': {0: 'Lead iodide'}, 'formula': {0: 'PbI2'}, 'barcode': {0: 203409}, 
-        'purity': {0: 99.9999}, 'molar mass (mg)': {0: 461.01 * 1000}, 'mass in vial': {0: 361.01}, 'acid': {0: 'Hydrogen bromide'}, 
+        'purity': {0: 99.9999}, 'molar mass (mg)': {0: 461.01 * 1000}, 'mass in vial': {0: 230.51}, 'acid': {0: 'Hydrogen bromide'}, 
         'formula.1': {0: 'HBr2'}, 'barcode.1': {0: 504309}, 'concentration': {0: '47%'}, 'volume (ml)': {0: 1}, 'remarks': {0: None}} # NOTE none is 'nan' in actual CSV
 
 def main(cur_dir, input_dir, output_dir):
