@@ -171,7 +171,9 @@ def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
                 pipette.aspirate(1000, source)
                 pipette.dispense(1000, destination)
         elif volume >= max_volume:
-            raise Exception(f'Maximum volume of vials is {max_volume}ul!')
+            protocol.pause(f'max volume of vials is {max_volume}ul. Skipping this vial')
+
+            # raise Exception(f'Maximum volume of vials is {max_volume}ul!')
         else:
             pipette.aspirate(volume, source)
             pipette.dispense(volume, destination)
