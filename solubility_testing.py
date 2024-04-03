@@ -117,8 +117,8 @@ def assign_spots(data,ingredient) -> dict:
     # will need to switch the logic of how this dictionary is initialized
 
     for i in range(1,num_ingredient+1): # TODO switch this logic around once it comes time to calculate with multiple salts. 
-        vial_letter = row_map[int(i / 12) if int(i/12) != 0 else 1]
-        vial_number = i % 12
+        vial_letter = row_map[int(i / 6)+1]
+        vial_number = i % 6
         
         shaker_positions[i] = f'{vial_letter}{vial_number}' # NOTE if you switch from keeping track of acids numerically to keeping track of them by name, the logic for how you
         # calculate the corresponding acid volume needs to change
@@ -142,11 +142,7 @@ def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
     
     heater_shaker = protocol.load_module('heaterShakerModuleV1', location='4') # NOTE placed in spot 9 so less splash hazard
     
-    heater_shaker.open_labware_latch()
-    protocol.pause('attach labware')
-    heater_shaker_adapter = heater_shaker.load_adapter('opentrons_aluminum_flat_bottom_plate') # NOTE this may not be necessary
-    heater_shaker_plate = heater_shaker_adapter.load_labware('nest_96_wellplate_200ul_flat')
-    heater_shaker.close_labware_latch()
+    heater_shaker_plate = heater_shaker.load_labware('opentrons_24_aluminumblock_generic_2ml_screwcap')
     
     heater_shaker.set_target_temperature(90)
     
