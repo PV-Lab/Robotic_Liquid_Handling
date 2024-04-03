@@ -155,14 +155,14 @@ def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
 
     
     
-    def dispense_vol(volume, source, destination) -> None:
+    def dispense_vol(volume, source, destination, max_volume=2000) -> None:
         '''
         takes in a single volume in uL and aspirates/dispenses it as necessary. if volume is
         greater than pipette capacity, then aspirate/dispense multiple times until done.
         '''
         
         # for volume in volumes:
-        if volume >= 1000:
+        if volume >= 1000 and volume < max_volume:
             num_trips = int(volume // 1000)
             rem = volume - num_trips * 1000
             pipette.aspirate(rem, source)
@@ -170,6 +170,8 @@ def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
             for _ in range(num_trips):
                 pipette.aspirate(1000, source)
                 pipette.dispense(1000, destination)
+        elif volume >= max_volume:
+            raise Exception(f'Maximum volume of vials is {max_volume}ul!')
         else:
             pipette.aspirate(volume, source)
             pipette.dispense(volume, destination)
@@ -199,7 +201,7 @@ def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
         for idx, vial in salt_locations.items():
 
             acid_vol = acid_volumes[idx]
-            dispense_vol(acid_vol, tube_rack[acid_locations[1]].center(), heater_shaker_plate[vial].center())
+            dispense_vol(acid_vol, tube_rack[acid_locations[1]].center(), heater_shaker_plate[vial].center(),2000)
             # if acid_vol >= 1000:
             #     num_trips = acid_vol // 1000
             #     rem = acid_vol - num_trips * 1000
