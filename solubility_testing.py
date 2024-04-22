@@ -145,7 +145,7 @@ def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
     heater_shaker_plate = heater_shaker.load_labware('opentrons_24_aluminumblock_generic_2ml_screwcap')
     
     heater_shaker.set_target_temperature(90)
-    
+    heater_shaker.close_labware_latch()
     tiprack = protocol.load_labware('opentrons_96_tiprack_1000ul',location='6')
     pipette = protocol.load_instrument('p1000_single_gen2',mount="right",tip_racks=[tiprack])
 
@@ -229,7 +229,7 @@ def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
     # heat_and_shake()
     
     heater_shaker.set_and_wait_for_shake_speed(500)
-    protocol.delay(minutes=1)
+    protocol.delay(minutes=5)
     heater_shaker.deactivate_shaker()
     heater_shaker.deactivate_heater()
 
