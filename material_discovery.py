@@ -22,14 +22,16 @@ def identify_materials(input_data : pd.DataFrame, no_of_elems, elements : pd.Ser
      
 def get_ratios(selected): 
      make = pd.DataFrame(['composition', 'ratio'])
-     make= selected[['composition', 'Atoms']].copy()
+     make= selected[['composition', 'Atoms']][selected['make']=="TRUE"].copy()
      make['ratio_1'] = make['Atoms'].str.split(',').str[0]
      make['ratio_1'] = make['ratio_1'].str.split('[').str[1]
      make['ratio_2'] = make['Atoms'].str.split(',').str[1]
      make['ratio_2'] = make['ratio_2'].str.split(']').str[0]
+     print(make)
      return make
      
       
 def main(input_data : pd.DataFrame, no_of_elems, elements):
      selected = identify_materials(input_data, no_of_elems, elements)
      make = get_ratios(selected)
+     make.to_csv('output/materials_to_make.csv', index=False)
