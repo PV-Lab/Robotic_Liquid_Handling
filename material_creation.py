@@ -87,6 +87,7 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
             
         
         pipette.drop_tip()
+        
         pipette.pick_up_tip(tiprack['B1'])
 
         for idx, num_parts in enumerate(parts_per_material):
@@ -100,5 +101,5 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
     make_series({}, 100)
 
 
-mat_to_make['composition'].to_csv('output\materials_made.csv',index=False)
-print('Materials experimented with saved to csv file!')
+# mat_to_make['composition'].to_csv('output\materials_made.csv',index=False)
+# print('Materials experimented with saved to csv file!')
