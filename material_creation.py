@@ -17,13 +17,14 @@ LABWARE = {
         'opentrons_tiprack':'opentrons_96_tiprack_1000ul',
     }
 
-manual_material_dict = {'composition': 
-                        {0: 'Rb1Bi1Br4', 1: 'Rb1Bi2Br7', 2: 'Rb2Bi1Br5', 3: 'Rb2Bi3Br11', 4: 'Rb3Bi1Br6', 5: 'Rb3Bi2Br9', 6: 'Rb4Bi3Br13', 7: 'Rb5Bi2Br11'}, 
-                        'Atoms': 
-                        {0: '[1, 1, 4]', 1: '[1, 2, 7]', 2: '[2, 1, 5]', 3: '[2, 3, 11]', 4: '[3, 1, 6]', 5: '[3, 2, 9]', 6: '[4, 3, 13]', 7: '[5, 2, 11]'}, 
-                        'ratio_1': {0: 1, 1: 1, 2: 2, 3: 2, 4: 3, 5: 3, 6: 4, 7: 5}, 
-                        'ratio_2': {0: 1, 1: 2, 2: 1, 3: 3, 4: 1, 5: 2, 6: 3, 7: 2}
-                        }
+manual_material_dict = {'composition': {0: 'Cs1Pb1Br3', 1: 'Cs1Pb2Br5', 2: 'Cs2Pb1Br4', 3: 'Cs2Pb3Br8', 4: 'Cs2Pb5Br12'}, 'Atoms': {0: '[1, 1, 3]', 1: '[1, 2, 5]', 2: '[2, 1, 4]', 3: '[2, 3, 8]', 4: '[2, 5, 12]'}, 'ratio_1': {0: 1, 1: 1, 2: 2, 3: 2, 4: 2}, 'ratio_2': {0: 1, 1: 2, 2: 1, 3: 3, 4: 5}}
+# {'composition': 
+#                         {0: 'Rb1Bi1Br4', 1: 'Rb1Bi2Br7', 2: 'Rb2Bi1Br5', 3: 'Rb2Bi3Br11', 4: 'Rb3Bi1Br6', 5: 'Rb3Bi2Br9', 6: 'Rb4Bi3Br13', 7: 'Rb5Bi2Br11'}, 
+#                         'Atoms': 
+#                         {0: '[1, 1, 4]', 1: '[1, 2, 7]', 2: '[2, 1, 5]', 3: '[2, 3, 11]', 4: '[3, 1, 6]', 5: '[3, 2, 9]', 6: '[4, 3, 13]', 7: '[5, 2, 11]'}, 
+#                         'ratio_1': {0: 1, 1: 1, 2: 2, 3: 2, 4: 3, 5: 3, 6: 4, 7: 5}, 
+#                         'ratio_2': {0: 1, 1: 2, 2: 1, 3: 3, 4: 1, 5: 2, 6: 3, 7: 2}
+#                         }
 
 mat_to_make = pd.DataFrame(manual_material_dict)
 
@@ -60,11 +61,16 @@ print(f'{B_parts=}')
 
 
 def run(protocol:protocol_api.ProtocolContext) -> None:
-    tiprack = protocol.load_labware(LABWARE['opentrons_tiprack'],5)
+    tiprack = protocol.load_labware(LABWARE['opentrons_tiprack'],6)
     pipette = protocol.load_instrument(LABWARE['1mL_pipette'],mount='right',tip_racks=[tiprack])
-    tuberack = protocol.load_labware(LABWARE['6_tube_tuberack'],4)
+    tuberack = protocol.load_labware('opentrons_6_tuberack_falcon_50ml_conical',9)  
     plate = protocol.load_labware(LABWARE['microtiter_plate'],3)
+
+    heater_shaker = protocol.load_module('heaterShakerModuleV1', location='4') # NOTE placed in spot 9 so less splash hazard
     
+    heater_shaker_plate = heater_shaker.load_labware('opentrons_24_aluminumblock_generic_2ml_screwcap')
+    heater_shaker.close_labware_latch()
+
     soln_A = tuberack['A1']
     soln_B = tuberack['A2']
 
@@ -83,22 +89,24 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
             one_part_volume = max_volume / num_parts # NOTE these variable names def need work
             
             a_volume = one_part_volume * A_parts[idx]
-            pipette.transfer(a_volume, soln_A.bottom(), plate[f'A{idx+1}'].center(),new_tip='never')
+            # pipette.transfer(a_volume, soln_A.bottom(), plate[f'A{idx+1}'].center(),new_tip='never')
+            pipette.move_to(tuberack['A1'].top(z=10))
+            pipette.move_to(heater_shaker_plate['A1'].top(z=10))
             
         
-        pipette.drop_tip()
+        pipette.drop_tip(tiprack['A1'])
         
-        pipette.pick_up_tip(tiprack['B1'])
+        # pipette.pick_up_tip(tiprack['B1'])
 
-        for idx, num_parts in enumerate(parts_per_material):
-            one_part_volume = max_volume / num_parts # NOTE these variable names def need work
+        # for idx, num_parts in enumerate(parts_per_material):
+        #     one_part_volume = max_volume / num_parts # NOTE these variable names def need work
             
-            b_volume = one_part_volume * B_parts[idx]
-            pipette.transfer(b_volume, soln_B.bottom(), plate[f'A{idx+1}'].center(),new_tip='never')
+        #     b_volume = one_part_volume * B_parts[idx]
+        #     # pipette.transfer(b_volume, soln_B.bottom(), plate[f'A{idx+1}'].center(),new_tip='never')
         
-        pipette.drop_tip()    
+        # pipette.drop_tip(tiprack['B1'])    
 
-    make_series({}, 100)
+    make_series({}, 1000)
 
 
 # mat_to_make['composition'].to_csv('output\materials_made.csv',index=False)
