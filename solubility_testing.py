@@ -146,6 +146,7 @@ def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
     
     heater_shaker.set_target_temperature(90)
     
+    heater_shaker.close_labware_latch()
     tiprack = protocol.load_labware('opentrons_96_tiprack_1000ul',location='6')
     pipette = protocol.load_instrument('p1000_single_gen2',mount="right",tip_racks=[tiprack])
 

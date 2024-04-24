@@ -9,7 +9,7 @@
 stock_soln_A = 'Cs1Br1'
 stock_soln_B = 'Pb1Br2' # NOTE THE WAY IT IS CURRENTLY IMPLEMENTED EVERY ELEMENT MUST HAVE A NUMBER CORRESPONDING TO IT
 
-example_mix = 'Cs1Pb1Br4'
+example_mix = 'Cs1Pb1Br3'
 
 
 def parse_formula(formula):
