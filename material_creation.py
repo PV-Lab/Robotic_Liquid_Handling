@@ -63,14 +63,15 @@ print(f'{B_parts=}')
 def run(protocol:protocol_api.ProtocolContext) -> None:
     tiprack = protocol.load_labware(LABWARE['opentrons_tiprack'],6)
     pipette = protocol.load_instrument(LABWARE['1mL_pipette'],mount='right',tip_racks=[tiprack])
-    tuberack = protocol.load_labware('opentrons_6_tuberack_falcon_50ml_conical',9)  
-    plate = protocol.load_labware(LABWARE['microtiter_plate'],3)
+    tuberack = protocol.load_labware(LABWARE['6_tube_tuberack'],9)  
+    
+    
 
     heater_shaker = protocol.load_module('heaterShakerModuleV1', location='4') # NOTE placed in spot 9 so less splash hazard
     
     heater_shaker_plate = heater_shaker.load_labware('opentrons_24_aluminumblock_generic_2ml_screwcap')
     heater_shaker.close_labware_latch()
-
+    heater_shaker.set_target_temperature(37)
     soln_A = tuberack['A1']
     soln_B = tuberack['A2']
 
@@ -84,30 +85,34 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
         '''
         
         pipette.pick_up_tip(tiprack['A1'])
-
+        
         for idx, num_parts in enumerate(parts_per_material):
             one_part_volume = max_volume / num_parts # NOTE these variable names def need work
             
             a_volume = one_part_volume * A_parts[idx]
-            # pipette.transfer(a_volume, soln_A.bottom(), plate[f'A{idx+1}'].center(),new_tip='never')
-            pipette.move_to(tuberack['A1'].top(z=10))
-            pipette.move_to(heater_shaker_plate['A1'].top(z=10))
+            pipette.transfer(a_volume, tuberack['A1'].center(), heater_shaker_plate[f'A{idx+1}'].center(),new_tip='never')
+            
             
         
-        pipette.drop_tip(tiprack['A1'])
+        pipette.drop_tip()
         
-        # pipette.pick_up_tip(tiprack['B1'])
+        pipette.pick_up_tip(tiprack['B1'])
 
-        # for idx, num_parts in enumerate(parts_per_material):
-        #     one_part_volume = max_volume / num_parts # NOTE these variable names def need work
+        for idx, num_parts in enumerate(parts_per_material):
+            one_part_volume = max_volume / num_parts # NOTE these variable names def need work
             
-        #     b_volume = one_part_volume * B_parts[idx]
-        #     # pipette.transfer(b_volume, soln_B.bottom(), plate[f'A{idx+1}'].center(),new_tip='never')
+            b_volume = one_part_volume * B_parts[idx]
+            pipette.transfer(b_volume, tuberack['A2'].center(), heater_shaker_plate[f'A{idx+1}'].center(),new_tip='never')
         
-        # pipette.drop_tip(tiprack['B1'])    
+        pipette.drop_tip()    
 
+        
+        
     make_series({}, 1000)
-
-
+    heater_shaker.set_and_wait_for_shake_speed(500)
+        
+    protocol.delay(minutes=1)
+    heater_shaker.deactivate_heater()
+    heater_shaker.deactivate_shaker()
 # mat_to_make['composition'].to_csv('output\materials_made.csv',index=False)
 # print('Materials experimented with saved to csv file!')
