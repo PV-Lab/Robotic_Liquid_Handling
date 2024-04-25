@@ -4,9 +4,9 @@ import numpy as np
 from opentrons import protocol_api
 
 metadata = {
-    "protocolName":"Material Creation (Microtiter)",
+    "protocolName":"Drop Casting",
     "author":"Evan Hutchinson",
-    "description":"Create a series of materials from 2 stock solutions",
+    "description":"insert description here",
     "apiLevel": "2.16",
 }
 
