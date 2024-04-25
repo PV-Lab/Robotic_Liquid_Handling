@@ -87,8 +87,10 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
         pipette.pick_up_tip(tiprack['A1'])
         
         pipette.move_to(tuberack['A1'].bottom(z=20))
+        protocol.pause('look good?')
+
         
-        pipette.drop_tip()
+        pipette.drop_tip(tiprack['A1'])
         
         
         
