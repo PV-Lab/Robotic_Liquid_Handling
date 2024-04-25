@@ -112,7 +112,7 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
             
             
             a_volume = one_part_volume * A_parts[idx]
-            pipette.transfer(a_volume, tuberack['A1'].bottom(z=20), heater_shaker_plate[every_other_spot[idx]].center(),new_tip='never')
+            pipette.transfer(a_volume, tuberack['A1'].bottom(z=20), heater_shaker_plate[every_other_spot[idx]].top(),new_tip='never')
             pipette.blow_out(heater_shaker_plate[every_other_spot[idx]])
             print(50*'-')
             print(mat_to_make['composition'][idx])
@@ -126,7 +126,7 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
             one_part_volume = max_volume / num_parts # NOTE these variable names def need work
             
             b_volume = one_part_volume * B_parts[idx]
-            pipette.transfer(b_volume, tuberack['A2'].bottom(z=20), heater_shaker_plate[every_other_spot[idx]].center(),new_tip='never')
+            pipette.transfer(b_volume, tuberack['A2'].bottom(z=20), heater_shaker_plate[every_other_spot[idx]].top(),new_tip='never')
             pipette.blow_out(heater_shaker_plate[every_other_spot[idx]])
         
         pipette.drop_tip()    
