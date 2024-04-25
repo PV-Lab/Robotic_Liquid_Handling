@@ -70,7 +70,7 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
         
         # pipette.transfer(volume, heater_shaker_plate['A1'].center(),glass_slide['A1'].top(z=))
         pipette.move_to(glass_slide['A1'].top(z=30))
-            
+        protocol.pause('look good?')   
             
             
     
