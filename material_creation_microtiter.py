@@ -133,7 +133,7 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
 
         
         
-    make_series({}, 400)
+    make_series({}, 200)
     # heater_shaker.set_and_wait_for_shake_speed(500)
         
     # protocol.delay(minutes=1)
