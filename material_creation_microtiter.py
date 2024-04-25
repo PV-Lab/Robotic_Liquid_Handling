@@ -115,8 +115,7 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
             pipette.transfer(a_volume, tuberack['A1'].bottom(z=20), heater_shaker_plate[every_other_spot[idx]].top(),new_tip='never')
             pipette.blow_out(heater_shaker_plate[every_other_spot[idx]])
             print(50*'-')
-            print(mat_to_make['composition'][idx])
-            
+            print(mat_to_make['composition'][idx], 'in well ', every_other_spot[idx])
             print(50*'-')
         pipette.drop_tip()
         
