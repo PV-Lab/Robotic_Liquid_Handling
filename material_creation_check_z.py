@@ -71,7 +71,7 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
     
     heater_shaker_plate = heater_shaker.load_labware(LABWARE['microtiter_plate'])
     heater_shaker.close_labware_latch()
-    heater_shaker.set_target_temperature(37)
+    # 
     soln_A = tuberack['A1']
     soln_B = tuberack['A2']
 
