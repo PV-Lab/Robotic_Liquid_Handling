@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 
 from opentrons import protocol_api
+from opentrons import types
 
 metadata = {
     "protocolName":"Drop Casting",
@@ -20,6 +21,10 @@ LABWARE = {
 
 
 def give_me_spots(num_ingredient):
+    '''
+    generate alphanumeric locations in the well plate
+    based on how many different materials need to be tested
+    '''
     row_map = {1: 'A', 2:'B', 3:'C', 4:'D', 5:'E', 6:'F', 7:'G', 8:'8'}
     shaker_positions = {} # TODO, in line with keeping track of written names instead of numerical titles of each
     # will need to switch the logic of how this dictionary is initialized
@@ -36,11 +41,11 @@ def give_me_spots(num_ingredient):
     #print('Dictionary of positions: ', shaker_positions)
     return list(shaker_positions.values())
 
-print('testing spot assignment')
-spots = give_me_spots(44)
-print(give_me_spots(44))
-every_other_spot = spots[::2]
-print(f'{every_other_spot=}')
+# print('testing spot assignment')
+# spots = give_me_spots(44)
+# print(give_me_spots(44))
+# every_other_spot = spots[::2]
+# print(f'{every_other_spot=}')
 
 def run(protocol:protocol_api.ProtocolContext) -> None:
     tiprack = protocol.load_labware(LABWARE['opentrons_tiprack'],6)
@@ -56,6 +61,79 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
     # heater_shaker.set_target_temperature(37)
     soln_A = tuberack['A1']
     soln_B = tuberack['A2']
+
+    def glass_slide_coordinates(length, width, border, spacing):
+        '''
+        return a set of x,y coordinates corresponding to locations on a 
+        glass slide for drop casting
+
+        expects:
+            -length (inch) of plate along horizontal axis
+            -width (inch) of plate along vertical axis
+            -border (cm) of how much space to be left on all sides
+            spacing (cm) of space between droplets
+        '''
+        length_mm = length * 2.54 * 10
+        width_mm = width * 2.54 * 10
+        border_mm = border * 10
+        spacing_mm = spacing * 10
+
+        xy_coords = []
+        x0, y0 = (border_mm, border_mm)
+
+        #NOTE implementation 1 using a for loop and casting everything to ints
+        # for x in range(0, int(length_mm - 2 * spacing_mm), int(spacing_mm)):
+        #     for y in range(0, int(width_mm - 2 * spacing_mm), int(spacing_mm)):
+        #         xy_coords.append((x0 + x, y0 + y))
+        
+        # print('coords via for loops: ', xy_coords)
+        # return xy_coords
+
+    #NOTE implementation 2 using a while loop 
+        x = border_mm
+        y = border_mm
+
+        xcoords = []
+        ycoords = []
+        print('length: ', length_mm)
+        print('width: ', width_mm)
+        while x <= (length_mm - 2*spacing_mm):
+            xcoords.append(x)
+            print('x: ', x)
+            x += spacing_mm
+            
+        
+        while y <= (width_mm - 2*spacing_mm):
+            ycoords.append(y)
+            print('y: ', y)
+            y += spacing_mm
+
+        for x in xcoords:
+            for y in ycoords:
+                xy_coords.append((x,y))
+        print('coords via while loops: ', xy_coords)
+
+        
+        # x_points, y_points = zip(*xy_coords)
+        # plt.scatter(x_points,y_points)
+        # plt.show()
+
+        points = sorted(xy_coords, key=lambda tup: tup[0])
+        print(xy_coords)
+        return points
+
+    def drop_on_glass(points, volume):
+        '''
+        expects:
+            points: a list of x,y tuples 
+            volume (uL) of liquid to drop
+        '''
+        for coord in points:
+            x_coord, y_coord = coord
+            drop_location = types.Location(types.Point(x=x_coord,y=y_coord,z=0),glass_slide)
+            pipette.move_to(drop_location)
+
+            # pipette.transfer(volume, heater_shaker_plate['A1'].center(),drop_location) TODO uncomment this ONLY when you're sure it works.
     
     def drop_cast(volume) -> None: # NOTE once you switch to the OOP approach remove volume argument & read it off from the vial/solution
         '''
@@ -79,5 +157,6 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
 
         
         
-    drop_cast(10)
-    
+    slide_points = glass_slide_coordinates(3,2,1,1.5)
+    drop_on_glass(slide_points, 10)
+    # drop_cast(10)
