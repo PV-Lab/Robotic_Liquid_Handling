@@ -64,13 +64,13 @@ def glass_slide_coordinates(length, width, border, spacing):
     ycoords = []
     print('length: ', length_mm)
     print('width: ', width_mm)
-    while x <= (length_mm - spacing_mm):
+    while x <= (length_mm - border_mm):
         xcoords.append(x)
         print('x: ', x)
         x += spacing_mm
         
     
-    while y <= (width_mm - spacing_mm):
+    while y <= (width_mm - border_mm):
         ycoords.append(y)
         print('y: ', y)
         y += spacing_mm
