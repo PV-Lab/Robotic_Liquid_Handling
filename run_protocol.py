@@ -11,7 +11,7 @@ run_protocol = "Material Discovery" #Material Discovery ; Solubitlity_testing ; 
 
 if run_protocol == 'Material Discovery':
     no_of_elems =3
-    elems = 'RbBiBr'
+    elems = 'CsPbBr'
     print(elems)
     library = Path("./Data/material_candidates.csv")
     material_candidates = utils.read_input(library)

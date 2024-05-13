@@ -28,7 +28,8 @@ manual_material_dict = {'composition': {0: 'Cs1Pb1Br3', 1: 'Cs1Pb2Br5', 2: 'Cs2P
 
 mat_to_make = pd.DataFrame(manual_material_dict)
 
-# mat_to_make = pd.read_csv('output/materials_to_make.csv')
+#---save relevant outputs from materials_to_make---#
+mat_to_make = pd.read_csv('output/materials_to_make.csv')
 mat_dict = mat_to_make.to_dict()
 print(mat_dict)
 num_mats = len(mat_to_make)
@@ -81,7 +82,7 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
             material_instructions: a dictionary of material instructions from get_recipes
             max_volume: the volume of liquid allowed per well/vial (in uL)
 
-        assigns spots to labware, pulls liquid from solution A and B to mix them as necessary
+        assigns spots to labware, pulls liquid from solution A and B to mix them as necessary.
         '''
         
         pipette.pick_up_tip(tiprack['A1'])
@@ -90,7 +91,7 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
             one_part_volume = max_volume / num_parts # NOTE these variable names def need work
             
             a_volume = one_part_volume * A_parts[idx]
-            pipette.transfer(a_volume, tuberack['A1'].bottom(z=20), heater_shaker_plate[f'A{idx+1}'].center(),new_tip='never')
+            pipette.transfer(a_volume, tuberack['A1'].bottom(z=20), heater_shaker_plate[f'A{idx+1}'].center(),new_tip='never') 
             
             
         

@@ -8,6 +8,24 @@ metadata = {
     "apiLevel": "2.16",
 }
 
+def give_me_spots(num_ingredient):
+    row_map = {1: 'A', 2:'B', 3:'C', 4:'D', 5:'E', 6:'F', 7:'G', 8:'8'}
+    shaker_positions = {} # TODO, in line with keeping track of written names instead of numerical titles of each
+    # will need to switch the logic of how this dictionary is initialized
+
+    for i in range(1,num_ingredient+1): # TODO switch this logic around once it comes time to calculate with multiple salts. 
+        vial_letter = row_map[int(i / 12) if int(i/12) != 0 else 1]
+        vial_number = i % 12
+        
+        shaker_positions[i] = f'{vial_letter}{vial_number}' # NOTE if you switch from keeping track of acids numerically to keeping track of them by name, the logic for how you
+        # calculate the corresponding acid volume needs to change
+
+    #print('Dictionary of positions: ', shaker_positions)
+    return shaker_positions 
+
+print('testing spot assignment')
+print(give_me_spots(22))
+
 def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
         
     LABWARE = {

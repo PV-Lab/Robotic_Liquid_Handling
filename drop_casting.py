@@ -133,7 +133,7 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
             drop_location = types.Location(types.Point(x=x_coord,y=y_coord,z=0),glass_slide)
             pipette.move_to(drop_location)
 
-            # pipette.transfer(volume, heater_shaker_plate['A1'].center(),drop_location) TODO uncomment this ONLY when you're sure it works.
+            pipette.transfer(volume, heater_shaker_plate['A1'].center(),drop_location) #TODO uncomment this ONLY when you're sure it works.
     
     def drop_cast(volume) -> None: # NOTE once you switch to the OOP approach remove volume argument & read it off from the vial/solution
         '''
