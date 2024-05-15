@@ -63,7 +63,7 @@ class Vial:
             self.complete_volume = None
             self.fraction_left = None
 
-    def add_liquid(self,other_solution,volume,pipette):
+    def add_liquid(self,other_solution,volume,pipette,new_tip='always'):
         '''
         Adds liquid from another vial
 
@@ -95,7 +95,7 @@ class Vial:
                     self.solvent_vols[solvent] = other_solution.get_complete_solvent_vols()[solvent]*volume_fraction
             if(self.get_volume() > self.max_volume):
                 raise Exception("Volume in vial exceeds maximum.")
-            pipette.transfer(volume*1000,other_solution.get_labware().wells(other_solution.get_location()),self.labware.wells(self.location))
+            pipette.transfer(volume*1000,other_solution.get_labware().wells(other_solution.get_location()),self.labware.wells(self.location),new_tip=new_tip)
         else:
             raise Exception("Attempted to extract from a solution that was not complete. (Use is_complete() to complete filling a vial)")
 
@@ -196,9 +196,9 @@ def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
     
     acid_vol = 80
 
-    HCl_stock = Vial({'H+':9*acid_vol,'Cl-':9*acid_vol},{'H2O':acid_vol},tube_rack,0,80,complete=True)
-    HBr_stock = Vial({'H+':9*acid_vol,'Br-':9*acid_vol},{'H2O':acid_vol},tube_rack,1,80,complete=True)
-    HI_stock = Vial({'H+':9*acid_vol,'I-':9*acid_vol},{'H2O':acid_vol},tube_rack,2,80,complete=True)
+    HCl_stock = Vial({'H+':9*acid_vol,'Cl-':9*acid_vol},{'H2O':acid_vol},tube_rack,0,acid_vol,complete=True)
+    HBr_stock = Vial({'H+':9*acid_vol,'Br-':9*acid_vol},{'H2O':acid_vol},tube_rack,1,acid_vol,complete=True)
+    HI_stock = Vial({'H+':9*acid_vol,'I-':9*acid_vol},{'H2O':acid_vol},tube_rack,2,acid_vol,complete=True)
 
     solutions = []
     molarities = [0.2,0.4,0.6,0.8,1]
@@ -207,10 +207,13 @@ def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
 
     for i in range(0,5):
         solutions.append(Vial({'Cs+':powder_mmols,'Ac-':powder_mmols},{},heater_shaker_plate,i,5))
+    
+    solutions[0].add_liquid(HCl_stock,powder_mmols/molarities[i],pipette)
 
+    pipette.pick_up_tip()
     for i in range(0,5):
-        solutions[i].add_liquid(HCl_stock,powder_mmols/molarities[i],pipette)
-
+        solutions[i].add_liquid(HCl_stock,powder_mmols/molarities[i],pipette,new_tip='never')
+    pipette.drop_tip()
     for i in range(0,5):
         protocol.pause(solutions[i].__str__())
 
