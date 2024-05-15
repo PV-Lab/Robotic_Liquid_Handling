@@ -53,7 +53,7 @@ class Vial:
             self.complete_volume = None
             self.fraction_left = None
 
-    def add_liquid(self,other_solution,volume,pipette,new_tip='always'):
+    def add_liquid(self,other_solution,volume,pipette,new_tip='always',source_z_offset=None):
         '''
         Adds liquid from another vial
 
@@ -85,7 +85,10 @@ class Vial:
                     self.solvent_vols[solvent] = other_solution.get_complete_solvent_vols()[solvent]*volume_fraction
             if(self.get_volume() > self.max_volume):
                 raise Exception("Volume in vial exceeds maximum.")
-            pipette.transfer(volume*1000,other_solution.get_labware().wells(other_solution.get_location()),self.labware.wells(self.location),new_tip=new_tip)
+            if(source_z_offset == None):
+                pipette.transfer(volume*1000,other_solution.get_labware().wells(other_solution.get_location()).bottom(z=source_z_offset),self.labware.wells(self.location),new_tip=new_tip)
+            else:
+                pipette.transfer(volume*1000,other_solution.get_labware().wells(other_solution.get_location()),self.labware.wells(self.location),new_tip=new_tip)
         else:
             raise Exception("Attempted to extract from a solution that was not complete. (Use is_complete() to complete filling a vial)")
 
@@ -165,3 +168,8 @@ class Vial:
         Returns the Vial's location within its specified labware. A numerical index (0,1,2...) or letter-number pair ('A1','A2','B1'...) is acceptable.
         '''
         return self.location
+    def __str__(self):
+        output = "Vial containing the following chemicals:  "
+        for solute in self.get_molarities():
+            output += f"{solute} : {str(self.get_molarities()[solute])} mols/L, "
+        return output
