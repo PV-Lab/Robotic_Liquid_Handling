@@ -1,24 +1,3 @@
-# All mass in mg
-# All molar mass in g/mol
-# All volumes in mL
-# All molarities in mols/L
-# All molar quantities in mmols
-import os
-import pandas as Pandas
-
-from opentrons import protocol_api
-from opentrons import types
-
-metadata = {
-    "apiLevel": "2.16",
-    "protocolName":"Solubility Testing w/ Classes",
-    "author":"Otto Beall",
-    "description":"Evaluate the solubility of different mixtures by making a molarity gradient & seeing what dissolves",
-}
-
-requirements = {"robotType": "OT-2",}
-
-
 class Vial:
     ''' 
     A class that tracks the contents and location of a vial.
@@ -95,7 +74,7 @@ class Vial:
                     self.solvent_vols[solvent] = other_solution.get_complete_solvent_vols()[solvent]*volume_fraction
             if(self.get_volume() > self.max_volume):
                 raise Exception("Volume in vial exceeds maximum.")
-            pipette.transfer(volume*1000,other_solution.get_labware().wells(other_solution.get_location()),self.labware.wells(self.location))
+            pipette.transfer(volume/1000,other_solution.get_labware().wells(other_solution.get_location()),self.labware.wells(self.location))
         else:
             raise Exception("Attempted to extract from a solution that was not complete. (Use is_complete() to complete filling a vial)")
 
@@ -177,46 +156,3 @@ class Vial:
         Returns the Vial's location within its specified labware. A numerical index (0,1,2...) or letter-number pair ('A1','A2','B1'...) is acceptable.
         '''
         return self.location
-    
-    def __str__(self):
-        output = "Vial containing the following chemicals:\n"
-        for solute in self.get_molarities():
-            output += f"\t{solute} : {str(self.get_molarities()[solute])} mols/L\n"
-        return output
-    
-def run(protocol: protocol_api.ProtocolContext,data=None) -> None:
-    tube_rack = protocol.load_labware('opentrons_6_tuberack_falcon_50ml_conical',location='9') # NOTE this is the location of the rack with acid in it, far back so less splash hazard
-    heater_shaker = protocol.load_module('heaterShakerModuleV1', location='4') # NOTE placed in spot 9 so less splash hazard
-    heater_shaker_plate = heater_shaker.load_labware('opentrons_24_aluminumblock_generic_2ml_screwcap')
-    heater_shaker.set_target_temperature(90)
-    heater_shaker.close_labware_latch()
-    tiprack = protocol.load_labware('opentrons_96_tiprack_1000ul',location='6')
-    pipette = protocol.load_instrument('p1000_single_gen2',mount="right",tip_racks=[tiprack])
-
-    
-    acid_vol = 80
-
-    HCl_stock = Vial({'H+':9*acid_vol,'Cl-':9*acid_vol},{'H2O':acid_vol},tube_rack,0,80,complete=True)
-    HBr_stock = Vial({'H+':9*acid_vol,'Br-':9*acid_vol},{'H2O':acid_vol},tube_rack,1,80,complete=True)
-    HI_stock = Vial({'H+':9*acid_vol,'I-':9*acid_vol},{'H2O':acid_vol},tube_rack,2,80,complete=True)
-
-    solutions = []
-    molarities = [0.2,0.4,0.6,0.8,1]
-    max_volume = 4
-    powder_mmols = 4*min(molarities)
-
-    for i in range(0,5):
-        solutions.append(Vial({'Cs+':powder_mmols,'Ac-':powder_mmols},{},heater_shaker_plate,i,5))
-
-    for i in range(0,5):
-        solutions[i].add_liquid(HCl_stock,powder_mmols/molarities[i],pipette)
-
-    for i in range(0,5):
-        protocol.pause(solutions[i].__str__())
-
-
-
-    
-
-    
-
