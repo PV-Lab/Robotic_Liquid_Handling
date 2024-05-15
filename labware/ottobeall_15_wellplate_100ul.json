@@ -1,0 +1,235 @@
+{
+    "ordering": [
+        [
+            "A1",
+            "B1",
+            "C1"
+        ],
+        [
+            "A2",
+            "B2",
+            "C2"
+        ],
+        [
+            "A3",
+            "B3",
+            "C3"
+        ],
+        [
+            "A4",
+            "B4",
+            "C4"
+        ],
+        [
+            "A5",
+            "B5",
+            "C5"
+        ]
+    ],
+    "brand": {
+        "brand": "Otto Beall",
+        "brandId": []
+    },
+    "metadata": {
+        "displayName": "Otto Beall 15 Well Plate 100 µL",
+        "displayCategory": "wellPlate",
+        "displayVolumeUnits": "µL",
+        "tags": []
+    },
+    "dimensions": {
+        "xDimension": 127,
+        "yDimension": 85,
+        "zDimension": 5
+    },
+    "wells": {
+        "A1": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 13.5,
+            "y": 72.5,
+            "z": 4
+        },
+        "B1": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 13.5,
+            "y": 42.5,
+            "z": 4
+        },
+        "C1": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 13.5,
+            "y": 12.5,
+            "z": 4
+        },
+        "A2": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 38.5,
+            "y": 72.5,
+            "z": 4
+        },
+        "B2": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 38.5,
+            "y": 42.5,
+            "z": 4
+        },
+        "C2": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 38.5,
+            "y": 12.5,
+            "z": 4
+        },
+        "A3": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 63.5,
+            "y": 72.5,
+            "z": 4
+        },
+        "B3": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 63.5,
+            "y": 42.5,
+            "z": 4
+        },
+        "C3": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 63.5,
+            "y": 12.5,
+            "z": 4
+        },
+        "A4": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 88.5,
+            "y": 72.5,
+            "z": 4
+        },
+        "B4": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 88.5,
+            "y": 42.5,
+            "z": 4
+        },
+        "C4": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 88.5,
+            "y": 12.5,
+            "z": 4
+        },
+        "A5": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 113.5,
+            "y": 72.5,
+            "z": 4
+        },
+        "B5": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 113.5,
+            "y": 42.5,
+            "z": 4
+        },
+        "C5": {
+            "depth": 1,
+            "totalLiquidVolume": 100,
+            "shape": "rectangular",
+            "xDimension": 15,
+            "yDimension": 15,
+            "x": 113.5,
+            "y": 12.5,
+            "z": 4
+        }
+    },
+    "groups": [
+        {
+            "metadata": {
+                "wellBottomShape": "flat"
+            },
+            "wells": [
+                "A1",
+                "B1",
+                "C1",
+                "A2",
+                "B2",
+                "C2",
+                "A3",
+                "B3",
+                "C3",
+                "A4",
+                "B4",
+                "C4",
+                "A5",
+                "B5",
+                "C5"
+            ]
+        }
+    ],
+    "parameters": {
+        "format": "irregular",
+        "quirks": [],
+        "isTiprack": false,
+        "isMagneticModuleCompatible": false,
+        "loadName": "ottobeall_15_wellplate_100ul"
+    },
+    "namespace": "custom_beta",
+    "version": 1,
+    "schemaVersion": 2,
+    "cornerOffsetFromSlot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    }
+}
