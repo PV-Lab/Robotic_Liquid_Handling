@@ -3,6 +3,12 @@ import numpy as np
 
 from opentrons import protocol_api
 
+# All mass in mg
+# All molar mass in g/mol
+# All volumes in mL
+# All molarities in mols/L
+# All molar quantities in mmols
+
 metadata = {
     "protocolName":"Two-stock nanocrystal synthesis using Vial Class",
     "author":"Otto Beall",
@@ -18,30 +24,76 @@ LABWARE = {
 }
 
 
-manual_material_dict = {'composition': {0: 'Cs1Pb1Br3', 1: 'Cs1Pb2Br5', 2: 'Cs2Pb1Br4', 3: 'Cs2Pb3Br8', 4: 'Cs2Pb5Br12'}, 'Atoms': {0: '[1, 1, 3]', 1: '[1, 2, 5]', 2: '[2, 1, 4]', 3: '[2, 3, 8]', 4: '[2, 5, 12]'}, 'ratio_1': {0: 1, 1: 1, 2: 2, 3: 2, 4: 2}, 'ratio_2': {0: 1, 1: 2, 2: 1, 3: 3, 4: 5}}
-# {'composition': 
-#                         {0: 'Rb1Bi1Br4', 1: 'Rb1Bi2Br7', 2: 'Rb2Bi1Br5', 3: 'Rb2Bi3Br11', 4: 'Rb3Bi1Br6', 5: 'Rb3Bi2Br9', 6: 'Rb4Bi3Br13', 7: 'Rb5Bi2Br11'}, 
-#                         'Atoms': 
-#                         {0: '[1, 1, 4]', 1: '[1, 2, 7]', 2: '[2, 1, 5]', 3: '[2, 3, 11]', 4: '[3, 1, 6]', 5: '[3, 2, 9]', 6: '[4, 3, 13]', 7: '[5, 2, 11]'}, 
-#                         'ratio_1': {0: 1, 1: 1, 2: 2, 3: 2, 4: 3, 5: 3, 6: 4, 7: 5}, 
-#                         'ratio_2': {0: 1, 1: 2, 2: 1, 3: 3, 4: 1, 5: 2, 6: 3, 7: 2}
-#                         }
+manual_material_dict =  {'composition': {0: 'Cs2Pb5Br12', 1: 'Cs1Pb2Br5', 2: 'Cs2Pb3Br8', 3: 'Cs3Pb4Br11', 4: 'Cs1Pb1Br3', 5: 'Cs4Pb3Br10', 6: 'Cs3Pb2Br7', 7: 'Cs5Pb3Br11', 8: 'Cs2Pb1Br4', 9: 'Cs5Pb2Br9', 10: 'Cs3Pb1Br5', 11: 'Cs7Pb2Br11', 12: 'Cs4Pb1Br6'}, 'Atoms': {0: '[2, 5, 12]', 1: '[1, 2, 5]', 2: '[2, 3, 8]', 3: '[3, 4, 11]', 4: '[1, 1, 3]', 5: '[4, 3, 10]', 6: '[3, 2, 7]', 7: '[5, 3, 11]', 8: '[2, 1, 4]', 9: '[5, 2, 9]', 10: '[3, 1, 5]', 11: '[7, 2, 11]', 12: '[4, 1, 6]'}, 'Ind Charges': {0: '[[1], [2], [-1]]', 1: '[[1], [2], [-1]]', 2: '[[1], [2], [-1]]', 3: '[[1], [2], [-1]]', 4: '[[1], [2], [-1]]', 5: '[[1], [2], [-1]]', 6: '[[1], [2], [-1]]', 7: '[[1], [2], [-1]]', 8: '[[1], [2], [-1]]', 9: '[[1], [2], [-1]]', 10: '[[1], [2], [-1]]', 11: '[[1], [2], [-1]]', 12: '[[1], [2], [-1]]'}, 'ratio_1': {0: 2, 1: 1, 2: 2, 3: 3, 4: 1, 5: 4, 6: 3, 7: 5, 8: 2, 9: 5, 10: 3, 11: 7, 12: 4}, 'ratio_2': {0: 5, 1: 2, 2: 3, 3: 4, 4: 1, 5: 3, 6: 2, 7: 3, 8: 1, 9: 2, 10: 1, 11: 2, 12: 1}, 'A:B Ratio': {0: 0.4, 1: 0.5, 2: 0.6666666666666666, 3: 0.75, 4: 1.0, 5: 1.3333333333333333, 6: 1.5, 7: 1.6666666666666667, 8: 2.0, 9: 2.5, 10: 3.0, 11: 3.5, 12: 4.0}}
 
 mat_to_make = pd.DataFrame(manual_material_dict)
 
-mat_to_make = pd.read_csv('output/materials_to_make.csv')
-mat_to_make['A:B Ratio'] = mat_to_make['ratio_1']/mat_to_make['ratio_2']
-mat_to_make = mat_to_make.sort_values(by='A:B Ratio')
+# mat_to_make = pd.read_csv('inputs/materials_to_make_CsPbBr.csv')
+# mat_to_make['A:B Ratio'] = mat_to_make['ratio_1']/mat_to_make['ratio_2']
+# mat_to_make = mat_to_make.sort_values(by='A:B Ratio')
+# mat_to_make = mat_to_make.reset_index(drop=True)
 mat_dict = mat_to_make.to_dict()
 print(mat_dict)
 num_mats = len(mat_to_make)
 print(40 * '-')
 print('Materials to make: \n',mat_to_make)
+print('Dictionary Form \n',mat_dict)
 print(40*'-')
 print(f'{num_mats=}')
 
+a_b_ratio = mat_dict['A:B Ratio']
+print(a_b_ratio)
+
+well_volume = 1
+
+A_vols = []
+B_vols = []
+for part_a, part_b in zip(mat_to_make['ratio_1'], mat_to_make['ratio_2']):
+    A_vols.append(well_volume*part_a/(part_a+part_b))
+    B_vols.append(well_volume*part_b/(part_a+part_b))
 
 
+def run(protocol:protocol_api.ProtocolContext) -> None:
+    tiprack = protocol.load_labware(LABWARE['opentrons_tiprack'],6)
+    pipette = protocol.load_instrument(LABWARE['1mL_pipette'],mount='right',tip_racks=[tiprack])
+    tuberack = protocol.load_labware(LABWARE['6_tube_tuberack'],9)  
+    heater_shaker = protocol.load_module('heaterShakerModuleV1', location='4') # NOTE placed in spot 9 so less splash hazard
+    heater_shaker_plate = heater_shaker.load_labware('opentrons_24_aluminumblock_generic_2ml_screwcap')
+    heater_shaker.close_labware_latch()
+    dropcast_holder = protocol.load_labware('ottobeall_15_wellplate_100ul',2)
+    stock_molarity = 1
+    stock_volume = 10
+    acid_molarity = 9
+
+    A_stock = Vial({'Cs+':stock_molarity*stock_volume,'Ac-':stock_molarity*stock_volume,'H+':acid_molarity*stock_volume,'Br-':acid_molarity*stock_volume},
+                    {'H2O':stock_volume},
+                    tuberack,'A1',max_volume=90,complete=True)
+    B_stock = Vial({'Pb2+':stock_molarity*stock_volume,'Br-':(stock_molarity+acid_molarity)*stock_volume,'H+':acid_molarity*stock_volume},
+                    {'H2O':stock_volume},
+                    tuberack,'A2',max_volume=90,complete=True)
+    
+    product_vials = []
+
+    for i in range(len(A_vols)):
+        product_vials.append(Vial({},{},heater_shaker_plate,i,max_volume = 5))
+    
+    pipette.pick_up_tip()
+    for i in range(len(product_vials)):
+        product_vials[i].add_liquid(A_stock,A_vols[i],pipette,new_tip='never')
+    pipette.drop_tip()
+    pipette.pick_up_tip()
+    for i in range(len(product_vials)):
+        product_vials[i].add_liquid(B_stock,B_vols[i],pipette,new_tip='never')
+        product_vials[i].completed()
+    pipette.drop_tip()
+    for i in range(len(product_vials)):
+        protocol.pause(product_vials[i].__str__())
+
+    drops = []
+    for i in range(len(product_vials)):
+        drops.append(Vial({},{},dropcast_holder,i,max_volume = 0.1))   
+    for i in range(len(product_vials)):
+        drops[i].add_liquid(product_vials[i],0.01,pipette)
 
 class Vial:
     ''' 
@@ -160,7 +212,7 @@ class Vial:
             output[solute] = self.solute_mmols[solute]/volume
         return output
 
-    def complete(self):
+    def completed(self):
         '''
         Changes the Vial's status to complete, indicating that nothing more will be added to it.
         '''

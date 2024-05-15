@@ -47,7 +47,6 @@ A_parts = []
 B_parts = []
 
 for part_a, part_b in zip(A_column, B_column):
-    
     A_parts.append(part_a)
     B_parts.append(part_b)
     parts_per_material.append(part_a+part_b)
