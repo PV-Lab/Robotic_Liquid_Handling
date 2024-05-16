@@ -79,11 +79,11 @@ def run(protocol:protocol_api.ProtocolContext) -> None:
     
     pipette.pick_up_tip()
     for i in range(len(product_vials)):
-        product_vials[i].add_liquid(A_stock,A_vols[i],pipette,new_tip='never')
+        product_vials[i].add_liquid(A_stock,A_vols[i],pipette,new_tip='never',source_z_offset=20)
     pipette.drop_tip()
     pipette.pick_up_tip()
     for i in range(len(product_vials)):
-        product_vials[i].add_liquid(B_stock,B_vols[i],pipette,new_tip='never')
+        product_vials[i].add_liquid(B_stock,B_vols[i],pipette,new_tip='never',source_z_offset=20)
         product_vials[i].completed()
     pipette.drop_tip()
     for i in range(len(product_vials)):
@@ -172,9 +172,9 @@ class Vial:
             if(self.get_volume() > self.max_volume):
                 raise Exception("Volume in vial exceeds maximum.")
             if(source_z_offset == None):
-                pipette.transfer(volume*1000,other_solution.get_labware().wells(other_solution.get_location()).bottom(z=source_z_offset),self.labware.wells(self.location),new_tip=new_tip)
-            else:
                 pipette.transfer(volume*1000,other_solution.get_labware().wells(other_solution.get_location()),self.labware.wells(self.location),new_tip=new_tip)
+            else:
+                pipette.transfer(volume*1000,[well.bottom(z=source_z_offset) for well in other_solution.get_labware().wells(other_solution.get_location())],self.labware.wells(self.location),new_tip=new_tip)
         else:
             raise Exception("Attempted to extract from a solution that was not complete. (Use is_complete() to complete filling a vial)")
 
@@ -215,7 +215,7 @@ class Vial:
             output[solute] = self.solute_mmols[solute]/volume
         return output
 
-    def complete(self):
+    def completed(self):
         '''
         Changes the Vial's status to complete, indicating that nothing more will be added to it.
         '''
@@ -255,7 +255,7 @@ class Vial:
         '''
         return self.location
     def __str__(self):
-        output = "Vial containing the following chemicals:  "
+        output = f"Vial containing the following chemicals at {self.labware.location()}:  "
         for solute in self.get_molarities():
             output += f"{solute} : {str(self.get_molarities()[solute])} mols/L, "
         return output
