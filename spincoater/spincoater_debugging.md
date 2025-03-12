@@ -69,12 +69,34 @@
 	- [ ] Velocity
 	- [ ] Encoder Position
 
+ --- 
+
+odrivet
+ 
+ ---
+ 
+
 #### Mechanical 
 ***Overarching Goal: Reduce Friction 
 - [ ] Alter fastening method for securing encoder to deck mount. Current spacer and nut combination is janky
 - [ ] Alter geometry of encoder-deck mount
+- [x ] Adjust torque on encoder deck mount fasteners
+
+  	---
+  	(03/12/25)
+  	*This got rid of the "sticky" region of rotation for the motor. Originally tightened with hex wrench, however this likely had too much clamping force, which results in too much friction due to direct contact between deck mount and motor. Hand tightening proved to be fine. Deck mount remains affixed to base, and motor can rotate smoothly.*
+
+   *Now attempting calibration and velocity control with only the motor and encoder. Upon removal of fasteners, rotation during calibration stays choppy. Attempting the same process on other USB port to see if this is a signal issue, an issue with FRG's code, or a hardware issue. Upon changing the fastener torque, the velocity control command remained dead until USB port switched from LEFT to RIGHT. See further explanation in electrical section.*
+
+  	---
+  
 - [ ] Switch from o-ring to sheet of rubber at drone-deck interface
-- [ ] Loosen fasteners at drone-deck interface
+- [ ] Loosen fasteners at motor-deck interface
+      ---
+      	(03/12/25)
+	*Motion during calibration makes encoder deck mount walk if fasteners not included. Motor moving in more than 1 axis indicating it is either not level or the o-ring isnt compressed evenly, causing wobbly rotation due to non flat base. **attempt without o-ring at some point to confirm***
+	*Note: Still testing without the bowl or chuck attached to the motor. Very low clearance between bodies so it is crucial to avoid too many clamping forces upon the motor--as fully assembled device has too much friction.*
+      ---
 - [ ] Shorten 3d printed chuck for encoder (no contact between bowl and chuck = no friction) <- imperative lock nut fully fastened, but right now the motor can't rotate at all if fully fastened
 	- Likely the most bang for buck at mechanical side
 	- **Note:** instead of a lock nut, FRG uses a hex shaft from mcmaster. They then glue an o-ring to the top of the hex shaft Here: we use the nut that comes stock with the drone motor, and the o-ring is glued to the top of the chuck (MODIFY CHUCK SO ITS OPENING AT THE BASE ISN'T TOO LARGE)
@@ -82,6 +104,15 @@
 - [ ] USB noise is source. Use [ODrive USB Isolator](https://odriverobotics.com/shop/usb-isolator) or different USB port as a fix
 	- Recall in 2.009 when macbook USB for Teensy 4.0 signals was functional but power bank was not
 	- Also recall BNC connectors being the issue and them working once connectors were stripped due to problems with how the BNC transferred power
+   
+    ---
+
+(03/12/25) **New Find**
+   	*Switching to RIGHT usb port of AMLS laptop brings SC closer to the state seen when using personal laptop. `sc.stop()` actually transmits to the odrive now and resets it, whereas before the code would remain stuck and incapable of a keyboard interrupt. Also, sc.set_rpm() returns to familiar behavior of doing approx 90deg turn then stopping. Now that it is back to a familiar point, will move to diagnosing errors using odrivetool instead of FRG code. Need more explicit visibility into whats going on.*
+
+    *Upon moving to odrivetool and running `odrv0.axis0.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE`, the odrive completed the calibration motion--though shut off and became unrecognizable to the laptop upon plugging it in again.*
+
+    ---
 - [ ] May need to shorten wire to prevent ground loop
 - [Ferrite rings](https://shop.odriverobotics.com/products/n97xgxel6y0ufvunsxq70kih4p19nx) can also reduce noise 
 - [ ] Switching encoder to 3.3V instead of 5V 
@@ -111,6 +142,9 @@
 - [ODrive Workshop](https://www.youtube.com/watch?v=Ym3srZ0MRIA)
 - [Problem with closed loop velocity control](https://discourse.odriverobotics.com/t/problem-with-closed-loop-velocity-control/1529/10)
 - [Velocity control mode only works for a couple seconds](https://discourse.odriverobotics.com/t/velocity-control-mode-only-works-for-a-couple-seconds/2362/2)
+- [Weird ODrive Encoder Issue](https://www.xsimulator.net/community/threads/weird-odrive-issue.16405/)
+- [ODrivetool Liveplotter Error Fixes](https://discourse.odriverobotics.com/t/liveplotter-error-qapplication-was-not-created-in-the-main-thread/8954/7)
+- 
 
 
 
