@@ -125,10 +125,12 @@ axis1
   encoder: no error
   controller: no error
 ```
-*Following this error, the odrive was rebooted and calibration was performed again. Motor observed making unprompted rotations prior to calibration or switching to closed loop control. To fix this, switch from velocity control to torque control prior to entering closed loop control `odrv0.axis0.controller.config.control_mode = CONTROL_MODE_TORQUE_CONTROL`. Otherwise, a current limit vioaltion will occur.*
+*Following this error, the odrive was rebooted and calibration was performed again. Motor observed making unprompted rotations prior to calibration or switching to closed loop control. To fix this, switch from velocity control to torque control prior to entering closed loop control `odrv0.axis0.controller.config.control_mode = CONTROL_MODE_TORQUE_CONTROL`. Otherwise, a current limit violation will occur.*
 
-*An identical sequence of velocity control commands was issued in subsequent tests, though *
-## DO NOT RAISE CURRENT LIMIT ABOVE 40. MOTOR BEGAN SMOKING. RESUME THOUGHTS LATER.
+*An identical sequence of velocity control commands was issued in subsequent tests. However, given the spinout and current limit errors from earlier runs, the torque on the screws that fasten the encoder to the deck mount was increased alongside the torque on those between the deck mount and the base. Calibration proceeded successfully but the motor stalled during velocity control. Current limit was raised to 46A to match the motor's specification prior to this test and therefore the **motor began smoking profusely**. Need to investigate why the controller seems to be holding commands in a queue now as opposed to the earlier tests today.*
+
+*Next things to test are a new encoder deck mount that eliminates need to use spacers on the screws, swapping the orientation of the screws with their nuts, and reverting the controller's configuration to that from the earlier test.*
+
 
 ---
 
