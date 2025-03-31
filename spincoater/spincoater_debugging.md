@@ -62,6 +62,76 @@
 			odrv0.axis0.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
 ```
 
+---
+
+(03/31/25) *Increasing velocity limit to 35 turn/sec enabled velocity control to work on the first attempt. This is the first time velocity control has worked in a controlled and understandable way, as opposed to the unpredictable jerking motions or max speed rotations followed by things slowing down. The following chain of commands were issued: `odrv0.axis0.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE` -> `dump_errors(odrv0) # note no errors were seen here` -> `odrv0.axis0.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL` -> `odrv0.axis0.controller.config.control_mode = CONTROL_MODE_VELOCITY_CONTROL` -> `odrv0.axis0.controller.input_vel = 10` -> `odrv0.axis0.controller.input_vel = 0`. The motor turned at a steady 10 turn/sec wihout interruptions or chattering, and following the command to return velocity to 0, the motor ceased rotation.* 
+
+***Note: once velocity went to 0 on the motor, white dust/smoke (unable to determine which) rose from near the OT2's deck towards the top of the fume hood. The motor was cool to the touch and there is a 20ul pipette tip rack in deck slot 6 immediately behind the spincoater in deck slot 3. The current belief is that this is residue from a prior opentrons experiment rather than smoke from frying the motor.***
+
+*Following this successful velocity control run, another set of commands: `odrv0.axis0.controller.input_vel = 15` -> `odrv0.axis0.controller.input_vel = 0` was issued, but the motor remained motionless and cool to the touch with no dust or smoke. calling `dump_errors(odrv0)` returns the following:*
+
+```
+system: no error
+axis0
+  axis: Error(s):
+    AxisError.MOTOR_FAILED
+    AxisError.CONTROLLER_FAILED
+  motor: Error(s):
+    MotorError.UNKNOWN_TORQUE
+    MotorError.UNKNOWN_VOLTAGE_COMMAND
+  DRV fault: none
+  sensorless_estimator: no error
+  encoder: no error
+  controller: Error(s):
+    ControllerError.SPINOUT_DETECTED
+  axis: no error
+  motor: no error
+  DRV fault: none
+  sensorless_estimator: no error
+  encoder: no error
+  controller: no error
+```
+*Using velocity control instead of ramped velocity control means speed has to be reached instantly. Decreasing the motor's speed instantly or switching directions can cause current to spike, and if the current spike is greater than the current limit the motor will fail. Attempting the same set of commands with ramped velocity control yields the same error trace as above. However, it is seen that following smooth rotation for a few seconds, the motor begins to wobble and the speed varies. Finally, the motor comes to a halt and the bottom becomes hot.*
+
+*Removing the encoder and rotating the motor by hand does not present any problems. Motion is smooth through a full rotation without snagging. Placing the encoder and deck mount atop the motor introduces a snagging point, and this is the likely cause of the wobbling at higher RPM. Ramped velocity control will be attempted at 1 turn/sec instead to see whether this behavior continues and how soon it arises.* 
+
+*Immediately following the above test, calibration was performed to attempt the lower speed velocity control. However, upon calibration the following message appeared:*
+
+```
+ encoder: Error(s):
+    EncoderError.CPR_POLEPAIRS_MISMATCH
+```
+
+Repeated ramped velocity control test after adjusting encoder fasteners. New error trace below: 
+```
+system: no error
+axis0
+  axis: Error(s):
+    AxisError.MOTOR_FAILED
+    AxisError.CONTROLLER_FAILED
+  motor: Error(s):
+    MotorError.CURRENT_LIMIT_VIOLATION
+    MotorError.UNKNOWN_TORQUE
+  DRV fault: none
+  sensorless_estimator: no error
+  encoder: no error
+  controller: Error(s):
+    ControllerError.OVERSPEED
+axis1
+  axis: no error
+  motor: no error
+  DRV fault: none
+  sensorless_estimator: no error
+  encoder: no error
+  controller: no error
+```
+*Following this error, the odrive was rebooted and calibration was performed again. Motor observed making unprompted rotations prior to calibration or switching to closed loop control. To fix this, switch from velocity control to torque control prior to entering closed loop control `odrv0.axis0.controller.config.control_mode = CONTROL_MODE_TORQUE_CONTROL`. Otherwise, a current limit vioaltion will occur.*
+
+*An identical sequence of velocity control commands was issued in subsequent tests, though *
+## DO NOT RAISE CURRENT LIMIT ABOVE 40. MOTOR BEGAN SMOKING. RESUME THOUGHTS LATER.
+
+---
+
 #### Procedural
 - Live plot behavior (see guide in reference info). Isolate the following:
 	- [ ] Voltage
@@ -112,6 +182,7 @@
 
     *Upon moving to odrivetool and running `odrv0.axis0.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE`, the odrive completed the calibration motion--though shut off and became unrecognizable to the laptop upon plugging it in again.*
 
+(03/31/25) *After adjusting the speed limit for the motor, the left USB port has become functional. Running code from FRG will be avoided for the time being until raw odrivetool commands are bug free.*
     ---
 - [ ] May need to shorten wire to prevent ground loop
 - [Ferrite rings](https://shop.odriverobotics.com/products/n97xgxel6y0ufvunsxq70kih4p19nx) can also reduce noise 
@@ -144,7 +215,7 @@
 - [Velocity control mode only works for a couple seconds](https://discourse.odriverobotics.com/t/velocity-control-mode-only-works-for-a-couple-seconds/2362/2)
 - [Weird ODrive Encoder Issue](https://www.xsimulator.net/community/threads/weird-odrive-issue.16405/)
 - [ODrivetool Liveplotter Error Fixes](https://discourse.odriverobotics.com/t/liveplotter-error-qapplication-was-not-created-in-the-main-thread/8954/7)
-- 
-
+- [Motor Spinout at Bottom of Page](https://docs.odriverobotics.com/v/latest/manual/control.html)
+- [Specific Axis State & Control Mode Representations](https://docs.odriverobotics.com/v/latest/fibre_types/com_odriverobotics_ODrive.html#ODrive.Axis.AxisState)
 
 
