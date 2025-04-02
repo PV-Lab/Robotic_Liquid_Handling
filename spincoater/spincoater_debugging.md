@@ -172,6 +172,18 @@ axis1
 - [ ] Shorten 3d printed chuck for encoder (no contact between bowl and chuck = no friction) <- imperative lock nut fully fastened, but right now the motor can't rotate at all if fully fastened
 	- Likely the most bang for buck at mechanical side
 	- **Note:** instead of a lock nut, FRG uses a hex shaft from mcmaster. They then glue an o-ring to the top of the hex shaft Here: we use the nut that comes stock with the drone motor, and the o-ring is glued to the top of the chuck (MODIFY CHUCK SO ITS OPENING AT THE BASE ISN'T TOO LARGE)
+
+	---
+      (04/02/25)
+      *Following semi-successful run on 3/31 that ended in a smoked motor, a better encoder-motor mounting procedure will be adopted in order to keep friction to a minimum and make small adjustments to fastener torque less catastrophic. A set of spacers for the encoder were 3d printed at thicknesses of 1.5, 2, and 2.5mm, used to ensure encoder has 3 points of contact with flat surfaces and can't deflect as easily. Lower effort and faster iteration time than a full redesign of the encoder deck mount, especially because the latter is an STL mesh rather than a solid STEP object in CAD.
+
+      Additionally, the smoked motor was replaced as it is of no use if the enamel between windings has eroded. The code that worked will be ran a second time but with a far lower peak velocity and velocity ramp rate. Current spikes should be kept to a minimum. Inertial load on the motor should be low given the low weight of the chuck + glass slide, so friction and acceleration are the next levers to pull.
+
+      Upon inspection of broken motor, degradation of the windings is observed. The sheath around one of the motor's wires is also damaged, as the screw securing the motor to the base was in contact with that sheathing and likely provided a path for stall current to travel.
+
+      The encoder sagging has been determined to be the final source of excessive friction as well as the uneven rotation. Using some combination of the spacer pieces will likely fix the sag issue. Using the 2.5mm spacer at the motor contact area and the 2mm spacer at the back to contact the deck plate will likely fully support the base and prevent any additional moment being placed upon the shaft. Update design and continue iteration on 04/03.
+	---
+
 #### Electrical 
 - [ ] USB noise is source. Use [ODrive USB Isolator](https://odriverobotics.com/shop/usb-isolator) or different USB port as a fix
 	- Recall in 2.009 when macbook USB for Teensy 4.0 signals was functional but power bank was not
