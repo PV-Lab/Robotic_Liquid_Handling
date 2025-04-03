@@ -131,6 +131,7 @@ axis1
 
 *Next things to test are a new encoder deck mount that eliminates need to use spacers on the screws, swapping the orientation of the screws with their nuts, and reverting the controller's configuration to that from the earlier test.*
 
+(04/03/25) *Attempting another run of the spincoater in a reduced friction environment with a new motor. To reduce the moment placed on the motor shaft by the sagging encoder, a spacer that is XXmm tall at the point of motor contact and XXmm tall at the point of deck mount contact was used. Velocity limit was decreased to 15 turn/sec and ramp rate to 0.25. Current limit was returned to FRG's 40A. Upon full system calibration it is observed that rotation is much smoother than before, indicating less friction upon the motor due to the reduced load. Now just getting `EncoderError.CPR_POLEPAIRS_MISMATCH`, though this has resolved itself upon a system reboot in prior experience. 
 
 ---
 
