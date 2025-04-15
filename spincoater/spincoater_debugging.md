@@ -133,6 +133,49 @@ axis1
 
 (04/03/25) *Attempting another run of the spincoater in a reduced friction environment with a new motor. To reduce the moment placed on the motor shaft by the sagging encoder, a spacer that is XXmm tall at the point of motor contact and XXmm tall at the point of deck mount contact was used. Velocity limit was decreased to 15 turn/sec and ramp rate to 0.25. Current limit was returned to FRG's 40A. Upon full system calibration it is observed that rotation is much smoother than before, indicating less friction upon the motor due to the reduced load. Now just getting `EncoderError.CPR_POLEPAIRS_MISMATCH`, though this has resolved itself upon a system reboot in prior experience. 
 
+
+(04/14/25) Swapped out old encoder with new one, removed nuts from encoder-mount interface to experiment. Following set of commands results in motor spinning for a few seconds at 1turn/sec prior to spinning out. Motor remains cool after spinout leading to belief is with encoder not tracking motor position faithfully. Will attempt sensorless control and returning nuts to the mount, though encoder may not be necessary at all.
+
+n [31]: odrv0.axis0.controller.config.vel_limit = 30
+
+In [32]: odrv0.save_configuration()
+Oh no odrv0 disappeared
+
+Reconnected to ODrive v3.6 316D325D3431 (firmware v0.5.6) as odrv0
+In [33]: odrv0.axis0.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE
+
+In [34]: odrv0.axis0.controller.config.vel_gain
+Out[34]: 0.05000000074505806
+
+In [35]: odrv0.axis0.controller.config.vel_ramp_rate
+Out[35]: 1.0
+
+In [36]: odrv0.axis0.controller.config.vel_ramp_rate = 0.5
+
+In [37]: odrv0.axis0.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
+
+In [38]: dump_errors(odrv0)
+system: no error
+axis0
+  axis: Error(s):
+    AxisError.MOTOR_FAILED
+    AxisError.CONTROLLER_FAILED
+  motor: Error(s):
+    MotorError.UNKNOWN_TORQUE
+    MotorError.UNKNOWN_VOLTAGE_COMMAND
+  DRV fault: none
+  sensorless_estimator: no error
+  encoder: no error
+  controller: Error(s):
+    ControllerError.SPINOUT_DETECTED
+axis1
+  axis: no error
+  motor: no error
+  DRV fault: none
+  sensorless_estimator: no error
+  encoder: no error
+  controller: no error
+
 ---
 
 #### Procedural
