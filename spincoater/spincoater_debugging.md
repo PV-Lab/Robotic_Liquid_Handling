@@ -136,7 +136,8 @@ axis1
 
 (04/14/25) Swapped out old encoder with new one, removed nuts from encoder-mount interface to experiment. Following set of commands results in motor spinning for a few seconds at 1turn/sec prior to spinning out. Motor remains cool after spinout leading to belief is with encoder not tracking motor position faithfully. Will attempt sensorless control and returning nuts to the mount, though encoder may not be necessary at all.
 
-n [31]: odrv0.axis0.controller.config.vel_limit = 30
+```
+In [31]: odrv0.axis0.controller.config.vel_limit = 30
 
 In [32]: odrv0.save_configuration()
 Oh no odrv0 disappeared
@@ -175,6 +176,17 @@ axis1
   sensorless_estimator: no error
   encoder: no error
   controller: no error
+```
+----
+
+(4/18/25) *It is of note that controller spinout occurs after a few seconds of stable rotation followed by wobbling and slowdown to 0 velocity. It is of note that this time spinout occurred, the motor remained cool--indicating friction was not the limiting factor. Given spinout has ocurred on a brand new encoder, sensorless mode will be the next attempt in the interest of time. See **Spinout on Hoverboard** for a similar failure case.*
+
+*Issue seems to be with incorrect encoder offset calibration,incorrect general calibration, or `motor.config.current_control_bandwidth`. In the last case the issue is with accelerating faster than the current controller can keep up. Though increasing current control bandwidth seems to only delay the final result.*
+
+*Check `encoder.config.bandwidth` next to see what value that has. Default is 1000.*
+
+*Other related parameters are `spinout_electrical_power_threshold` and `spinout_mechanical_power_threshold`. Though these could be increased, that should only be done if there is confidence it can be executed carefully and safely. Given the severity of electrical/mechanical problems inside of the hood, sensorless mode will be tested first.*
+
 
 ---
 
@@ -275,5 +287,6 @@ axis1
 - [ODrivetool Liveplotter Error Fixes](https://discourse.odriverobotics.com/t/liveplotter-error-qapplication-was-not-created-in-the-main-thread/8954/7)
 - [Motor Spinout at Bottom of Page](https://docs.odriverobotics.com/v/latest/manual/control.html)
 - [Specific Axis State & Control Mode Representations](https://docs.odriverobotics.com/v/latest/fibre_types/com_odriverobotics_ODrive.html#ODrive.Axis.AxisState)
+- [Spinout on Hoverboard Motors](https://discourse.odriverobotics.com/t/spinout-on-hoverboard-motors/7645)
 
 
