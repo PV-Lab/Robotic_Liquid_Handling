@@ -1,5 +1,12 @@
 # Spin Coater Major Debug
 
+### TLDR:
+Reliability issues have persisted throughout all tests and fixes attempted below. Though the desired behavior has been observed occasionally, consistent function was not observed across a high number of consecutive trials. The motors and encoders were swapped out with new units in the event they were defective, but the same errors and problems persisted even after the exchange and a complete reset of the motor controller. 
+
+Due to the persistence of the errors throughout the below fixes--even while following the FRG spin coater build instructions line by line--the prevailing theory is that the ODrive v3.6 motor controller is the source of trouble. Though having a 1:1 replica of the FRG spin coater is ideal, given ODrive has listed the v3.6 as NRND (not recommended for new designs), it may be prudent to switch to the ODrive S1 or Pro. The newer controllers have much higher reliability, and they are still supported by ODrive with regular software updates and an improved UI. 
+
+If development continues on the current hardware setup, experimentation can take place with the control parameters of the motor controller, though experimenting with things like encoder bandwidth can have safety concerns if not done properly. Documentation is below for what problems and fixes have been seen/attempted, alongside the sources for design advice. 
+
 ### Problems:
 - Calibration using FRG spincoater code inconsistent like seen on personal laptop
 - High friction between motor and encoder preventing smooth rotation while using odrivetool and while using FRG code
